@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>未来型カルテフォーム - シンプルモダン</title>
+  <style>
+
+    * { box-sizing: border-box; }
+    body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  margin: 0;
+  padding: 1em;
+  color: #E0F7FA;
+  backdrop-filter: blur(10px);
+}
+    header {
+  background: linear-gradient(to right, #445B78, #2c5364);
+  color: #EAF9FF;
+  padding: 1.2em;
+  text-align: center;
+  font-size: 1.8em;
+  margin-bottom: 2em;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 100, 200, 0.4);
+}
+    form {
+  width: 92%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 1em;
+}
+    section {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 255, 255, 0.08), inset 0 0 12px rgba(0, 150, 255, 0.1);
+  border: 1px solid rgba(176, 224, 255, 0.2);
+  padding: 1.5em;
+  margin-bottom: 2em;
+  color: #E6FBFF;
+}
+    h2 {
+  font-size: 1.4em;
+  color: #B0E0FF;
+  border-bottom: 2px solid #445B78;
+  padding-bottom: 0.5em;
+  margin-bottom: 1.5em;
+  margin-top: 2em;
+  letter-spacing: 0.05em;
+}
+    h3 {
+      font-size: 1.1em;
+      color: #B0E0FF;
+      border-left: 4px solid #445B78;
+      padding-left: 0.5em;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.8em;
+      color: #B0E0FF; font-weight: bold;
+    }
+    input[type="text"], input[type="number"], input[type="date"], select, textarea {
+  width: 100%;
+  padding: 0.8em;
+  margin-top: 0.3em;
+  border: 1px solid rgba(200, 240, 255, 0.3);
+  border-radius: 5px;
+  font-size: 1em;
+  background-color: rgba(20, 20, 30, 0.6);
+  color: #E0F7FA;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-shadow: inset 0 0 4px rgba(100, 200, 255, 0.15);
+}
+    input:focus, select:focus, textarea:focus {
+  border-color: #88E3FF;
+  outline: none;
+  box-shadow: 0 0 8px rgba(136, 227, 255, 0.6);
+}
+    .inline-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  margin-bottom: 1em;
+  background: rgba(30, 30, 40, 0.6);
+  border: 1px solid rgba(176, 224, 255, 0.2);
+  border-radius: 12px;
+  padding: 1em;
+  box-shadow: inset 0 0 8px rgba(90, 200, 255, 0.1);
+}
+    .inline-options label {
+      flex: 1 1 45%;
+      font-weight: normal;
+    }
+    .button-submit {
+      display: block;
+      width: 100%;
+      padding: 1em;
+      font-size: 1.2em;
+      background: #445B78;
+      color: #FFF;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 2em;
+      transition: background 0.3s;
+    }
+    .button-submit:hover {
+  background: #5A6F8E;
+}
+    footer {
+      text-align: center;
+      font-size: 0.8em;
+      color: #A0B9C8;
+      margin-top: 3em;
+      padding-bottom: 1em;
+    }
+    @media (max-width: 600px) {
+  body {
+    padding: 0.5em;
+  }
+  header {
+    font-size: 1.4em;
+    padding: 1em 0.5em;
+  }
+  form {
+    width: 100%;
+    padding: 0.5em;
+  }
+  section {
+    padding: 1em;
+    margin-bottom: 1.5em;
+  }
+  h2 {
+    font-size: 1.2em;
+    margin-top: 1.5em;
+  }
+  h3 {
+    font-size: 1em;
+  }
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 1em;
+    padding: 0.6em;
+  }
+  .inline-options label {
+    flex: 1 1 100%;
+    font-size: 0.95em;
+  }
+  .button-submit {
+    font-size: 1em;
+    padding: 0.8em;
+  }
+}
+  header {
+    font-size: 1.4em;
+    padding: 1em 0.5em;
+  }
+  form {
+    width: 100%;
+    padding: 0.5em;
+  }
+  section {
+    padding: 1em;
+    margin-bottom: 1.5em;
+  }
+  h2 {
+    font-size: 1.2em;
+    margin-top: 1.5em;
+  }
+  h3 {
+    font-size: 1em;
+  }
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 1em;
+    padding: 0.6em;
+  }
+  .inline-options label {
+    flex: 1 1 100%;
+    font-size: 0.95em;
+  }
+  .button-submit {
+    font-size: 1em;
+    padding: 0.8em;
+  }
+}
+    }
+  
+
+/* 未来風カスタム追加 */
+body {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  backdrop-filter: blur(8px);
+}
+
+section {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.button-submit {
+  background: linear-gradient(90deg, #5A6F8E, #6B7D96);
+  box-shadow: 0 0 8px rgba(90, 111, 142, 0.7);
+}
+
+.button-submit:hover {
+  background: linear-gradient(90deg, #6B7D96, #5A6F8E);
+  box-shadow: 0 0 12px rgba(90, 111, 142, 1);
+}
+
+@keyframes gradientBG {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+  .theme-toggle {
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 0.5em 1em;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+  }
+
+  body.white-theme {
+    background: #fdfaf5;
+    color: #3a2e1f;
+}
+  body.white-theme header {
+    background: linear-gradient(to right, #f7f3eb, #fffaf2);
+    color: #3a2e1f;
+    box-shadow: 0 4px 12px rgba(180, 150, 100, 0.1);
+}
+  body.white-theme section {
+    background: rgba(255, 248, 235, 0.95);
+    color: #3a2e1f;
+    border: 1px solid #e7dccc;
+    box-shadow: 0 4px 12px rgba(200, 170, 120, 0.1);
+}
+  body.white-theme h2,
+  body.white-theme h3,
+  body.white-theme label {
+    color: #333;
+  }
+  body.white-theme input,
+  body.white-theme select,
+  body.white-theme textarea {
+    background: #fffdf8;
+    color: #3a2e1f;
+    border: 1px solid #d2c3b1;
+    box-shadow: none;
+}
+  body.white-theme .inline-options {
+    background: #f5efe3;
+    border: 1px solid #dfd2bb;
+    box-shadow: none;
+}
+  body.white-theme .button-submit {
+    background: #333;
+    color: #fff;
+    box-shadow: none;
+  }
+  body.white-theme .button-submit:hover {
+    background: #555;
+  }
+</style>
+</head>
+<body>
+<button class="theme-toggle" onclick="document.body.classList.toggle('white-theme')">テーマ切替</button>
+
+<header>未来型カルテフォーム</header>
+<form>
+  <section>
+    <h2>基本情報</h2>
+    <h3>施術日</h3>
+    <input type="date" name="date" required>
+
+    <h3>名前／ニックネーム</h3>
+    <input type="text" name="name" required>
+
+    <h3>年齢層</h3>
+    <select name="age" required>
+      <option value="">選択してください</option>
+      <option value="10代">10代</option>
+      <option value="20代">20代</option>
+      <option value="30代">30代</option>
+      <option value="40代">40代</option>
+      <option value="50代">50代</option>
+      <option value="60代">60代</option>
+      <option value="70代">70代</option>
+      <option value="80代">80代</option>
+      <option value="90代">90代</option>
+    </select>
+
+    <h3>性別</h3>
+    <div class="inline-options">
+      <label><input type="radio" name="gender" value="男性" required>男性</label>
+      <label><input type="radio" name="gender" value="女性">女性</label>
+      <label><input type="radio" name="gender" value="その他">その他</label>
+      <label><input type="radio" name="gender" value="回答しない">回答しない</label>
+    </div>
+
+    <h3>バイタル情報</h3>
+    <label><input type="checkbox" onclick="toggleVital()"> バイタルデータを記入する</label>
+    <div id="vital-section" class="inline-options" style="display:none">
+      <label>体温（℃）：<input type="number" name="temperature" step="0.1"></label>
+      <label>血圧（上）：<input type="number" name="bp_high"></label>
+      <label>血圧（下）：<input type="number" name="bp_low"></label>
+      <label>脈拍（bpm）：<input type="number" name="pulse"></label>
+      <label>身長（cm）：<input type="number" name="height"></label>
+      <label>体重（kg）：<input type="number" name="weight"></label>
+    </div>
+  </section>
+
+<section>
+  <h2>施術前カウンセリング</h2>
+
+  <h3>お疲れ部位（複数選択可）</h3>
+  <div class="inline-options">
+    <label><input type="checkbox" name="symptom" value="肩">肩</label>
+    <label><input type="checkbox" name="symptom" value="首">首</label>
+    <label><input type="checkbox" name="symptom" value="腰">腰</label>
+    <label><input type="checkbox" name="symptom" value="背中">背中</label>
+    <label><input type="checkbox" name="symptom" value="脚">脚</label>
+    <label><input type="checkbox" name="symptom" value="腕">腕</label>
+    <label><input type="checkbox" name="symptom" value="手">手</label>
+    <label><input type="checkbox" name="symptom" value="目の疲れ">目の疲れ</label>
+    <label><input type="checkbox" name="symptom" value="むくみ">むくみ</label>
+    <label><input type="checkbox" name="symptom" value="冷え">冷え</label>
+    <label><input type="checkbox" name="symptom" value="全身疲労">全身疲労</label>
+  </div>
+
+  <h3>食欲</h3>
+  <div class="inline-options">
+    <label><input type="radio" name="appetite" value="ある">ある</label>
+    <label><input type="radio" name="appetite" value="ない">ない</label>
+    <label><input type="radio" name="appetite" value="波がある">波がある</label>
+  </div>
+
+  <h3>睡眠の質</h3>
+  <div class="inline-options">
+    <label><input type="radio" name="sleep" value="良い">良い</label>
+    <label><input type="radio" name="sleep" value="普通">普通</label>
+    <label><input type="radio" name="sleep" value="悪い">悪い</label>
+  </div>
+
+  <h3>ストレスレベル</h3>
+  <div class="inline-options">
+    <label><input type="radio" name="stress" value="強い">強い</label>
+    <label><input type="radio" name="stress" value="少しある">少しある</label>
+    <label><input type="radio" name="stress" value="ない">ない</label>
+  </div>
+
+  <h3>婦人科系症状</h3>
+  <div class="inline-options">
+    <label><input type="radio" name="gynecology" value="PMS">PMS</label>
+    <label><input type="radio" name="gynecology" value="更年期">更年期</label>
+    <label><input type="radio" name="gynecology" value="特になし">特になし</label>
+  </div>
+
+  <h3>施術前気分スコア（0〜10）</h3>
+  <input type="number" name="mood_before" min="0" max="10">
+
+  <h3>気になること・伝えておきたいこと</h3>
+  <textarea name="memo" rows="3"></textarea>
+</section>
+
+<section>
+  <h2>施術コース選択</h2>
+
+  <h3>もみほぐし</h3>
+  <div class="inline-options">
+    <label><input type="checkbox" onclick="toggleCourse('momi-options', this)"> もみほぐし</label>
+  </div>
+  <div id="momi-options" class="inline-options" style="display:none;">
+    <label>時間：
+      <select name="momi_time">
+        <option value="">選択</option>
+        <option value="30分">30分</option>
+        <option value="60分">60分</option>
+        <option value="90分">90分</option>
+        <option value="120分">120分</option>
+      </select>
+    </label>
+    <label>強弱：
+      <select name="momi_strength">
+        <option value="">選択</option>
+        <option value="軽め">軽め</option>
+        <option value="普通">普通</option>
+        <option value="強め">強め</option>
+      </select>
+    </label>
+    <label>重点部位：
+      <select name="momi_focus">
+        <option value="">選択</option>
+        <option value="肩">肩</option>
+        <option value="腰">腰</option>
+        <option value="背中">背中</option>
+        <option value="首">首</option>
+        <option value="脚">脚</option>
+        <option value="腕">腕</option>
+        <option value="手">手</option>
+        <option value="全体">全体</option>
+      </select>
+    </label>
+  </div>
+
+  <h3>フットケア</h3>
+  <div class="inline-options">
+    <label><input type="checkbox" onclick="toggleCourse('foot-options', this)"> フットケア</label>
+  </div>
+  <div id="foot-options" class="inline-options" style="display:none;">
+    <label>時間：
+      <select name="foot_time">
+        <option value="">選択</option>
+        <option value="20分">20分</option>
+        <option value="30分">30分</option>
+        <option value="40分">40分</option>
+        <option value="50分">50分</option>
+      </select>
+    </label>
+    <label>強弱：
+      <select name="foot_strength">
+        <option value="">選択</option>
+        <option value="軽め">軽め</option>
+        <option value="普通">普通</option>
+        <option value="強め">強め</option>
+      </select>
+    </label>
+    <label>重点部位：
+      <select name="foot_focus">
+        <option value="">選択</option>
+        <option value="足裏">足裏</option>
+        <option value="ふくらはぎ">ふくらはぎ</option>
+        <option value="すね">すね</option>
+        <option value="足全体">足全体</option>
+      </select>
+    </label>
+  </div>
+
+  <h3>ヘッドケア</h3>
+  <div class="inline-options">
+    <label><input type="checkbox" onclick="toggleCourse('head-options', this)"> ヘッドケア</label>
+  </div>
+  <div id="head-options" class="inline-options" style="display:none;">
+    <label>時間：
+      <select name="head_time">
+        <option value="">選択</option>
+        <option value="20分">20分</option>
+        <option value="30分">30分</option>
+        <option value="40分">40分</option>
+      </select>
+    </label>
+    <label>強弱：
+      <select name="head_strength">
+        <option value="">選択</option>
+        <option value="軽め">軽め</option>
+        <option value="普通">普通</option>
+        <option value="強め">強め</option>
+      </select>
+    </label>
+    <label>重点部位：
+      <select name="head_focus">
+        <option value="">選択</option>
+        <option value="頭頂部">頭頂部</option>
+        <option value="こめかみ">こめかみ</option>
+        <option value="後頭部">後頭部</option>
+        <option value="首">首</option>
+        <option value="全体">全体</option>
+      </select>
+    </label>
+  </div>
+</section>
+
+<section>
+  <h2>施術後記録</h2>
+
+  <h3>施術後気分スコア（0〜10）</h3>
+  <input type="number" name="mood_after" min="0" max="10">
+
+  <h3>自覚的な変化</h3>
+  <textarea name="change" rows="3"></textarea>
+
+  <h3>満足度</h3>
+  <div class="inline-options">
+    <label><input type="radio" name="satisfaction" value="満足">満足</label>
+    <label><input type="radio" name="satisfaction" value="やや満足">やや満足</label>
+    <label><input type="radio" name="satisfaction" value="不満">不満</label>
+  </div>
+
+  <h3>次回来店希望</h3>
+  <input type="text" name="next_visit" placeholder="例：1ヶ月後に来店希望">
+</section>
+
+<button type="submit" class="button-submit">送信する</button>
+
+<script>
+  function toggleVital() {
+    const section = document.getElementById('vital-section');
+    section.style.display = section.style.display === 'none' ? 'block' : 'none';
+  }
+  function toggleCourse(id, checkbox) {
+    const element = document.getElementById(id);
+    element.style.display = checkbox.checked ? 'block' : 'none';
+  }
+</script>
+
+<footer>
+  &copy; 2025 H.A.E.L.labs. All rights reserved.
+</footer>
