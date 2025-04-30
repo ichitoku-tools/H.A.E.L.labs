@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>未来型カルテフォーム - スタックカードUI</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 2em;
+      background: radial-gradient(circle at center, #0f2027, #203a43);
+      font-family: 'Segoe UI', sans-serif;
+      color: #E0F7FA;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2em;
+      font-size: 1.8em;
+      color: #B0E0FF;
+    }
+
+    .stack-container {
+      position: relative;
+      width: 100%;
+      max-width: 320px;
+      height: 450px;
+      margin: 0 auto;
+      perspective: 1200px;
+      touch-action: pan-y;
+    }
+
+    .card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #1b2a3a, #263b4d);
+      box-shadow: 0 10px 40px rgba(0,255,255,0.2);
+      transition: transform 0.4s ease, z-index 0.4s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 1.5em;
+      color: #E0F7FA;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+
+    .card h2 {
+      font-size: 1.2em;
+      margin-bottom: 1em;
+      color: #88e0f7;
+    }
+
+    .card label {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+      font-size: 1em;
+      margin: 0.3em 0;
+    }
+
+    .card input[type="checkbox"],
+    .card input[type="radio"] {
+      transform: scale(1.4);
+    }
+
+    .card:not(.active) {
+      transform: scale(0.9) rotateY(-10deg) translateY(10px);
+      z-index: 1;
+      opacity: 0.8;
+    }
+
+    .card.active {
+      transform: scale(1) rotateY(0deg) translateY(0);
+      z-index: 10;
+      opacity: 1;
+    }
+
+    .card.active:hover {
+      transform: scale(1.05) translateY(-8px);
+      box-shadow: 0 0 20px rgba(0,255,255,0.6);
+    }
+  </style>
+</head>
+<body>
+  <h1>未来型スタックカードカルテ</h1>
+  <div class="stack-container" id="stack">
+    <div class="card active" id="card1">
+      <h2>お疲れ部位</h2>
+      <label><input type="checkbox"> 肩</label>
+      <label><input type="checkbox"> 首</label>
+      <label><input type="checkbox"> 腰</label>
+      <label><input type="checkbox"> 背中</label>
+    </div>
+    <div class="card" id="card2">
+      <h2>ご要望</h2>
+      <label><input type="checkbox"> リラックス</label>
+      <label><input type="checkbox"> 全身スッキリ</label>
+      <label><input type="checkbox"> 部分集中</label>
+    </div>
+    <div class="card" id="card3">
+      <h2>施術後評価</h2>
+      <label><input type="radio" name="satisfaction"> 満足</label>
+      <label><input type="radio" name="satisfaction"> 普通</label>
+      <label><input type="radio" name="satisfaction"> 不満</label>
+    </div>
+  </div>
+  <script>
+    const cards = document.querySelectorAll('.card');
+    let current = 0;
+    let hoverActive = false;
+
+    function updateCards() {
+      cards.forEach((card, index) => {
+        card.classList.remove('active');
+        if (index === current) {
+          card.classList.add('active');
+        }
+      });
+    }
+
+    function nextCard() {
+      if (!hoverActive) return;
+      current = (current + 1) % cards.length;
+      updateCards();
+    }
+
+    function prevCard() {
+      if (!hoverActive) return;
+      current = (current - 1 + cards.length) % cards.length;
+      updateCards();
+    }
+
+    document.body.addEventListener('touchstart', e => {
+      const activeCard = document.querySelector('.card.active:hover');
+      hoverActive = !!activeCard;
+      if (!hoverActive) return;
+      startX = e.touches[0].clientX;
+    });
+
+    document.body.addEventListener('touchend', e => {
+      if (!hoverActive) return;
+      const endX = e.changedTouches[0].clientX;
+      if (startX - endX > 50) nextCard();
+      else if (endX - startX > 50) prevCard();
+    });
+  </script>
+</body>
+</html>
