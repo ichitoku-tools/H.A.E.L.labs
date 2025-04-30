@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3Dカルテ円卓UI</title>
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at center, #0a1c28, #081219);
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+    .scene {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 1200px;
+      position: relative;
+    }
+    .round-table {
+      width: 500px;
+      height: 500px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateY(0deg);
+      transition: transform 1s ease;
+    }
+    .card {
+      width: 240px;
+      height: 320px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0,255,255,0.2);
+      box-shadow: 0 0 12px rgba(0,255,255,0.15);
+      border-radius: 20px;
+      color: #e6faff;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin: -160px 0 0 -120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.6s ease, z-index 0.6s;
+      cursor: pointer;
+      transform-style: preserve-3d;
+      font-size: 1.1em;
+    }
+    .card.active {
+      transform: translateZ(150px) scale(1.2) !important;
+      z-index: 10;
+      box-shadow: 0 0 24px rgba(0,255,255,0.6);
+    }
+    .controls {
+      position: fixed;
+      bottom: 1em;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 1em;
+    }
+    .controls button {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid #0ff;
+      color: #0ff;
+      font-size: 1.2em;
+      padding: 0.5em 1em;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="scene">
+  <div class="round-table" id="roundTable">
+    <div class="card" style="transform: rotateY(0deg) translateZ(300px);">施術前</div>
+    <div class="card" style="transform: rotateY(120deg) translateZ(300px);">施術中</div>
+    <div class="card" style="transform: rotateY(240deg) translateZ(300px);">施術後</div>
+  </div>
+</div>
+<div class="controls">
+  <button onclick="rotateTable(-1)">◀︎</button>
+  <button onclick="rotateTable(1)">▶︎</button>
+</div>
+
+<script>
+  let rotation = 0;
+  let activeIndex = 0;
+  const cards = document.querySelectorAll('.card');
+
+  function updateActiveCard() {
+    cards.forEach((card, idx) => {
+      card.classList.toggle('active', idx === activeIndex);
+    });
+  }
+
+  function rotateTable(direction) {
+    const table = document.getElementById('roundTable');
+    rotation += direction * 120;
+    table.style.transform = `rotateY(${rotation}deg)`;
+    activeIndex = (activeIndex - direction + cards.length) % cards.length;
+    updateActiveCard();
+  }
+
+  updateActiveCard();
+</script>
+</body>
+</html>
