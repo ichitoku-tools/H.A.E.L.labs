@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3Dカルテホイール＋サークル演出</title>
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle, #0a1c28, #050d12);
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .scene {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 1200px;
+      position: relative;
+    }
+    .circle-bg {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,255,255,0.15), transparent 70%);
+      box-shadow: 0 0 80px rgba(0,255,255,0.3);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) translateZ(-200px);
+      z-index: 0;
+    }
+    .carousel {
+      width: 100%;
+      height: 400px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s ease;
+      z-index: 1;
+    }
+    .card {
+      width: 280px;
+      height: 360px;
+      background: rgba(0,0,0,0.6);
+      color: #e6faff;
+      border-radius: 20px;
+      box-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-style: preserve-3d;
+      transform-origin: center center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 1em;
+      transition: transform 0.6s ease, box-shadow 0.6s ease, opacity 0.4s;
+      cursor: pointer;
+    }
+    .card.center {
+      transform: translate(-50%, -50%) translateZ(100px) scale(1.1);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+    }
+    .card.left {
+      transform: translate(-160%, -50%) rotateY(25deg) translateZ(-200px);
+    }
+    .card.right {
+      transform: translate(60%, -50%) rotateY(-25deg) translateZ(-200px);
+    }
+    .card.expanded {
+      transform: translate(-50%, -50%) translateZ(400px) scale(1.4) !important;
+      z-index: 10;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+    }
+    .rotate-button {
+      position: fixed;
+      right: 1em;
+      bottom: 1em;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid #0ff;
+      color: #0ff;
+      padding: 0.7em 1em;
+      border-radius: 50%;
+      font-size: 1.5em;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <div class="circle-bg"></div>
+    <div class="carousel">
+      <div class="card left" onclick="expandCard(this)">施術前カウンセリング</div>
+      <div class="card center" onclick="expandCard(this)">施術内容<br><strong>リラックス</strong></div>
+      <div class="card right" onclick="expandCard(this)">施術後評価</div>
+    </div>
+  </div>
+  <button class="rotate-button" onclick="rotateCards()">🔘</button>
+
+  <script>
+    let position = 1;
+    let expanded = null;
+
+    function rotateCards() {
+      if (expanded) return; // 展開中は回転禁止
+      const cards = document.querySelectorAll('.card');
+      cards.forEach(card => card.classList.remove('left', 'center', 'right'));
+
+      position = (position + 1) % 3;
+      if(position === 0){
+        cards[0].classList.add('center');
+        cards[1].classList.add('right');
+        cards[2].classList.add('left');
+      } else if(position === 1){
+        cards[0].classList.add('left');
+        cards[1].classList.add('center');
+        cards[2].classList.add('right');
+      } else {
+        cards[0].classList.add('right');
+        cards[1].classList.add('left');
+        cards[2].classList.add('center');
+      }
+    }
+
+    function expandCard(card) {
+      const isActive = card.classList.contains('center');
+      if (!isActive || expanded) return;
+
+      expanded = card;
+      card.classList.add('expanded');
+
+      // 他カードは一時的に非表示っぽく
+      document.querySelectorAll('.card').forEach(c => {
+        if (c !== card) c.style.opacity = 0.1;
+      });
+
+      // 3秒後に戻す（仮）
+      setTimeout(() => {
+        card.classList.remove('expanded');
+        document.querySelectorAll('.card').forEach(c => {
+          c.style.opacity = 1;
+        });
+        expanded = null;
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
