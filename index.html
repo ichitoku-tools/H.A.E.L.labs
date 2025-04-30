@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>未来型カルテフォーム - ホログラム円卓</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at center, #0f2027, #203a43, #2c5364);
+      overflow: hidden;
+      font-family: sans-serif;
+      color: #E0F7FA;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .stage {
+      perspective: 1000px;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .circle-table {
+      position: relative;
+      width: 50vh;
+      height: 50vh;
+      transform-style: preserve-3d;
+    }
+
+    .card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20vh;
+      height: 28vh;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 12px;
+      box-shadow: 0 0 20px cyan;
+      transform-style: preserve-3d;
+      margin: -14vh -10vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1em;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.5s ease, box-shadow 0.3s ease;
+      overflow: hidden;
+      text-align: center;
+      padding: 0.5em;
+    }
+
+    .card.summoned {
+      width: 90vw !important;
+      height: 90vh !important;
+      margin: 0 !important;
+      transform: translate(-50%, -50%) scale(1.0) !important;
+      z-index: 10;
+      box-shadow: 0 0 50px rgba(0,255,255,0.8);
+      overflow-y: auto;
+      padding: 1.2em;
+    }
+
+    .karte-form {
+      padding: 1em;
+      font-size: 0.85em;
+      text-align: left;
+      width: 90%;
+    }
+
+    .karte-form label {
+      display: block;
+      margin-bottom: 0.6em;
+    }
+
+    .karte-form input, .karte-form select {
+      width: 100%;
+      padding: 0.3em;
+      border-radius: 6px;
+      border: none;
+    }
+
+    .karte-form button {
+      width: 100%;
+      padding: 0.4em;
+      border: none;
+      border-radius: 6px;
+      background: #00bcd4;
+      color: white;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 1.2em;
+      cursor: pointer;
+      color: #0ff;
+    }
+
+    .card.glow {
+      box-shadow: 0 0 40px rgba(0,255,255,0.9), 0 0 80px rgba(0,255,255,0.5);
+      transition: box-shadow 0.3s;
+    }
+
+    canvas#particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .circle-table::before {
+      content: "";
+      position: absolute;
+      bottom: -8vh;
+      left: 50%;
+      transform: translateX(-50%) rotateX(70deg);
+      width: 140%;
+      height: 20vh;
+      background: radial-gradient(circle at center, rgba(0,255,255,0.2), transparent 70%);
+      border-radius: 50%;
+      box-shadow: 0 0 40px rgba(0,255,255,0.2);
+      filter: blur(8px);
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+  <div class="stage">
+    <div class="circle-table">
+      <div class="card" data-form-type="before" style="transform: rotateY(0deg) translateZ(28vh);" onclick="summon(this)">施術前<br>カウンセリング</div>
+      <div class="card" data-form-type="course" style="transform: rotateY(120deg) translateZ(28vh);" onclick="summon(this)">施術<br>コース</div>
+      <div class="card" data-form-type="after" style="transform: rotateY(240deg) translateZ(28vh);" onclick="summon(this)">施術後<br>記録</div>
+    </div>
+  </div>
+
+  <script>
+    function summon(card) {
+      const isSummoned = card.classList.contains('summoned');
+
+      document.querySelectorAll('.card').forEach(c => {
+        c.classList.remove('summoned');
+        c.innerHTML = c.dataset.originalText || c.innerHTML;
+      });
+
+      card.classList.add('glow');
+      setTimeout(() => card.classList.remove('glow'), 300);
+
+      if (!isSummoned) {
+        card.classList.add('summoned');
+        card.dataset.originalText = card.innerHTML;
+
+        let formHTML = "";
+        const type = card.dataset.formType;
+        if (type === "before") {
+          formHTML = `
+            <div class="karte-form">
+              <label>名前：<input type="text" placeholder="お名前"></label>
+              <label>年齢：<input type="number" placeholder="年齢"></label>
+              <label>主訴：<input type="text" placeholder="例：肩こり"></label>
+              <label>睡眠の質：<input type="text" placeholder="例：浅い・よく眠れた"></label>
+              <button>保存</button>
+            </div>`;
+        } else if (type === "course") {
+          formHTML = `
+            <div class="karte-form">
+              <label>コース選択：<select><option>もみほぐし</option><option>フット</option></select></label>
+              <label>施術時間：<input type="number" placeholder="分"></label>
+              <label>重点部位：<input type="text"></label>
+              <label>強弱：<select><option>弱</option><option>中</option><option>強</option></select></label>
+              <button>保存</button>
+            </div>`;
+        } else if (type === "after") {
+          formHTML = `
+            <div class="karte-form">
+              <label>気分スコア（0〜10）：<input type="number" min="0" max="10"></label>
+              <label>変化：<input type="text" placeholder="例：肩が軽くなった"></label>
+              <label>次回来店希望：<input type="text" placeholder="例：1ヶ月後"></label>
+              <button>保存</button>
+            </div>`;
+        }
+
+        card.innerHTML = formHTML + `
+          <div class="close-button" onclick="event.stopPropagation(); closeCard(this)">×</div>`;
+      }
+    }
+
+    function closeCard(btn) {
+      const card = btn.closest('.card');
+      card.classList.remove('summoned');
+      card.innerHTML = card.dataset.originalText;
+      card.style.width = '';
+      card.style.height = '';
+      card.style.margin = '';
+      card.style.overflowY = '';
+      card.style.padding = '';
+    }
+  </script>
+
+  <script>
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 1,
+        dx: Math.random() * 0.5 - 0.25,
+        dy: Math.random() * 0.5 - 0.25
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(0,255,255,0.4)';
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
+</body>
+</html>
