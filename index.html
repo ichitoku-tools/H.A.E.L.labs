@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>未来型カルテフォーム - カード召喚</title>
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at center, #0f2027, #203a43, #2c5364);
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+      color: #E0F7FA;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      width: 240px;
+      height: 340px;
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 14px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 1.1em;
+      transition: all 0.6s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .card.summoned {
+      transform: translateY(-80px) scale(1.4);
+      box-shadow: 0 0 50px rgba(0, 255, 255, 0.8);
+      z-index: 10;
+    }
+
+    .card.showing-menu::after {
+      content: "カルテ入力中...";
+      position: absolute;
+      bottom: -2.5em;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.85em;
+      color: #ffffffaa;
+      background: rgba(0,255,255,0.1);
+      padding: 0.5em 1em;
+      border-radius: 6px;
+    }
+
+    .karte-form {
+      width: 90%;
+      font-size: 0.9em;
+      text-align: left;
+    }
+
+    .karte-form label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .karte-form input {
+      width: 100%;
+      padding: 6px;
+      border-radius: 4px;
+      border: none;
+    }
+
+    .karte-form button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 8px;
+      background: #00bcd4;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 1.2em;
+      color: #0ff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" onclick="summon(this)">テストカード</div>
+
+  <script>
+    function summon(card) {
+      const isSummoned = card.classList.contains('summoned');
+      const isMenu = card.classList.contains('showing-menu');
+
+      if (isMenu) return;
+
+      if (isSummoned) {
+        const formHTML = `
+          <form class="karte-form">
+            <label>名前：<input type="text" name="name" placeholder="お名前"></label>
+            <label>年齢：<input type="number" name="age" placeholder="年齢"></label>
+            <button type="submit">保存</button>
+          </form>`;
+        card.classList.add('showing-menu');
+        if (!card.querySelector('.karte-form')) {
+          card.insertAdjacentHTML('beforeend', formHTML);
+        }
+        if (!card.querySelector('.close-button')) {
+          const btn = document.createElement('div');
+          btn.textContent = '×';
+          btn.className = 'close-button';
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            card.classList.remove('summoned', 'showing-menu');
+            btn.remove();
+            const form = card.querySelector('.karte-form');
+            if (form) form.remove();
+          };
+          card.appendChild(btn);
+        }
+      } else {
+        document.querySelectorAll('.card').forEach(c => {
+          c.classList.remove('summoned', 'showing-menu');
+          const close = c.querySelector('.close-button');
+          if (close) close.remove();
+          const form = c.querySelector('.karte-form');
+          if (form) form.remove();
+        });
+        card.classList.add('summoned');
+      }
+    }
+  </script>
+</body>
+</html>
