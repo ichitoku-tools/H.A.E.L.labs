@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>施術前カルテ</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
+      color: #E0F7FA;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1em;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 14px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.35);
+      padding: 1.5em;
+      backdrop-filter: blur(6px);
+      animation: float 5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1em;
+      color: #aef;
+    }
+
+    label {
+      display: block;
+      margin-top: 1em;
+      margin-bottom: 0.4em;
+      font-weight: bold;
+      color: #aef;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5em;
+      margin-bottom: 0.5em;
+      border-radius: 6px;
+      border: none;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 1em;
+      padding: 0.7em;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      background: #00bcd4;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #00acc1;
+    }
+
+    .checkbox-block {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      padding: 1em;
+      border-radius: 10px;
+      margin-bottom: 1em;
+      transition: background 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .checkbox-block:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .checkbox-block input[type="checkbox"] {
+      display: none;
+    }
+
+    .checkbox-block.active {
+      background: rgba(0, 255, 255, 0.15);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: #ccc;
+      margin-left: 1.2em;
+      margin-top: 0.3em;
+    }
+
+    .scale-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1em 0 0.5em 0;
+    }
+
+    .scale-bar span {
+      flex-shrink: 0;
+      width: 1.5em;
+      text-align: center;
+      color: #ccc;
+    }
+
+    .scale-track {
+      display: flex;
+      flex-grow: 1;
+      justify-content: space-between;
+      margin: 0 0.5em;
+    }
+
+    .scale-box {
+      width: 24px;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(0,255,255,0.4);
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .scale-box.active {
+      background: cyan;
+      transform: scale(1.2);
+      box-shadow: 0 0 8px cyan;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      background: cyan;
+      border-radius: 50%;
+      box-shadow: 0 0 10px cyan;
+      cursor: pointer;
+      margin-top: -6px;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 6px;
+      background: rgba(0,255,255,0.4);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>施術前カルテ</h2>
+
+    <label for="date">施術日</label>
+    <input type="date" id="date" name="date" required>
+
+    <label for="name">お名前（ニックネーム可）</label>
+    <input type="text" id="name" placeholder="例：さとう様"/>
+
+    <h3>主訴（複数選択可）</h3>
+    <div class="checkbox-block">
+      <input type="checkbox" name="symptoms" value="body" onchange="toggleActive(this)" checked>カラダの不調
+      <div class="description">例：肩こり・腰痛・首の痛み など</div>
+    </div>
+    <div class="checkbox-block">
+      <input type="checkbox" name="symptoms" value="mental" onchange="toggleActive(this)">メンタルの不調
+      <div class="description">例：気分の落ち込み・不安感・集中力の低下 など</div>
+    </div>
+    <div class="checkbox-block">
+      <input type="checkbox" name="symptoms" value="autonomic" onchange="toggleActive(this)">自律神経の乱れ
+      <div class="description">例：睡眠不足・食欲不振・PMS・生理不順 など</div>
+    </div>
+
+    <label for="symptoms">お疲れの部位（複数選択可）</label>
+    <select id="symptoms" name="bodyParts[]" multiple>
+      <option value="head">頭</option>
+      <option value="eyes">目のまわり</option>
+      <option value="neck">首</option>
+      <option value="shoulders">肩</option>
+      <option value="back">背中</option>
+      <option value="waist">腰</option>
+      <option value="arms">腕</option>
+      <option value="hands">手</option>
+      <option value="legs">脚</option>
+      <option value="feet">足裏</option>
+    </select>
+
+    <label>ストレススケール</label>
+    <div class="scale-bar">
+      <span>0</span>
+      <div class="scale-track" id="stressTrack"></div>
+      <span>10</span>
+    </div>
+    <input type="range" id="stressRange" min="0" max="10" step="1" value="0">
+
+    <label for="memo">気になることやご希望（任意）</label>
+    <textarea id="memo" rows="3" placeholder="例：冷えが気になります／肩を重点的に..."></textarea>
+
+    <button>保存する</button>
+  </div>
+
+  <script>
+    document.querySelectorAll('.checkbox-block').forEach(block => {
+      const checkbox = block.querySelector('input[type="checkbox"]');
+      if (checkbox.checked) block.classList.add('active');
+      block.addEventListener('click', () => {
+        checkbox.checked = !checkbox.checked;
+        checkbox.dispatchEvent(new Event('change'));
+      });
+    });
+
+    function toggleActive(checkbox) {
+      const block = checkbox.closest('.checkbox-block');
+      if (checkbox.checked) {
+        block.classList.add('active');
+      } else {
+        block.classList.remove('active');
+      }
+    }
+
+    const track = document.getElementById("stressTrack");
+    const range = document.getElementById("stressRange");
+    let boxes = [];
+
+    for (let i = 0; i <= 10; i++) {
+      const box = document.createElement("div");
+      box.classList.add("scale-box");
+      box.dataset.value = i;
+      box.addEventListener("click", () => {
+        range.value = i;
+        updateScale(i);
+      });
+      boxes.push(box);
+      track.appendChild(box);
+    }
+
+    function updateScale(value) {
+      boxes.forEach((b, idx) => {
+        b.classList.toggle("active", idx <= value);
+      });
+    }
+
+    range.addEventListener("input", () => {
+      updateScale(range.value);
+    });
+
+    // 初期化
+    updateScale(0);
+  </script>
+</body>
+</html>
