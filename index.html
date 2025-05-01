@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>未来型カルテフォーム - ホログラム統合版</title>
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at center, #0f2027, #203a43, #2c5364);
+      height: 100vh;
+      overflow: hidden;
+      font-family: sans-serif;
+      color: #bffcff;
+      text-shadow: 0 0 4px rgba(0,255,255,0.7);
+      user-select: none;
+    }
+
+    canvas#particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .guide {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #0ff;
+      font-size: 0.9em;
+      opacity: 0.6;
+      animation: blink 1.8s infinite;
+      z-index: 99;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 0.1; }
+    }
+
+    .stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+      perspective: 1200px;
+    }
+
+    .circle-table {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      transform-style: preserve-3d;
+      animation: rotateTable 20s linear infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    @keyframes rotateTable {
+      from { transform: rotateY(0deg); }
+      to { transform: rotateY(360deg); }
+    }
+
+    body[data-mode="grid"] .circle-table {
+      animation: none;
+      transform: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1em;
+      padding: 2em;
+    }
+
+    .card-wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-style: preserve-3d;
+      animation: float 5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    body[data-mode="grid"] .card-wrapper {
+      position: static;
+      animation: none;
+      transform: none;
+    }
+
+    .card {
+      width: 260px;
+      height: 360px;
+      background: rgba(0,255,255,0.05);
+      border: 1px solid rgba(0,255,255,0.4);
+      border-radius: 12px;
+      box-shadow: 0 0 18px rgba(0,255,255,0.25);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.4s, box-shadow 0.4s;
+    }
+
+    .card:hover {
+      transform: scale(1.06);
+      box-shadow: 0 0 30px rgba(0,255,255,0.7);
+    }
+
+    .card.expanded {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      width: 90vw;
+      height: 90vh;
+      z-index: 10;
+      overflow-y: auto;
+      background: rgba(0, 40, 60, 0.6);
+      padding: 1em;
+      box-shadow: 0 0 50px rgba(0,255,255,0.6);
+    }
+
+    .karte-form {
+      font-size: 0.95em;
+      color: #bffcff;
+    }
+
+    .karte-form label {
+      display: block;
+      margin-bottom: 1em;
+    }
+
+    .karte-form input, .karte-form select {
+      width: 100%;
+      padding: 0.4em;
+      background: rgba(0,255,255,0.05);
+      border: 1px solid rgba(0,255,255,0.2);
+      border-radius: 6px;
+      color: #bffcff;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 1.5em;
+      color: #0ff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body data-mode="circle">
+  <div class="guide">ダブルタップで整列切り替え</div>
+  <canvas id="particles"></canvas>
+  <div class="stage">
+    <div class="circle-table" id="circleTable">
+      <div class="card-wrapper"><div class="card" data-form="before">施術前</div></div>
+      <div class="card-wrapper"><div class="card" data-form="course">施術コース</div></div>
+      <div class="card-wrapper"><div class="card" data-form="after">施術後</div></div>
+    </div>
+  </div>
+
+  <script>
+    const wrappers = document.querySelectorAll('.card-wrapper');
+    const cards = document.querySelectorAll('.card');
+    const table = document.getElementById('circleTable');
+    const radius = 40;
+
+    wrappers.forEach((wrapper, i) => {
+      const angle = (360 / wrappers.length) * i;
+      wrapper.style.transform = `rotateY(${angle}deg) translateZ(${radius}vh)`;
+    });
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        if (card.classList.contains('expanded')) return;
+        table.style.animationPlayState = 'paused';
+        const type = card.dataset.form;
+        let html = '';
+        if (type === 'before') {
+          html = `
+            <div class="karte-form">
+              <label>名前：<input type="text"></label>
+              <label>年齢：<input type="number"></label>
+              <label>主訴：<input type="text"></label>
+              <label>睡眠の質：<input type="text"></label>
+              <button>保存</button>
+            </div>`;
+        } else if (type === 'course') {
+          html = `
+            <div class="karte-form">
+              <label>コース：<select><option>もみほぐし</option><option>フット</option></select></label>
+              <label>時間：<input type="number"></label>
+              <label>重点部位：<input type="text"></label>
+              <button>保存</button>
+            </div>`;
+        } else if (type === 'after') {
+          html = `
+            <div class="karte-form">
+              <label>スコア：<input type="number"></label>
+              <label>変化：<input type="text"></label>
+              <label>次回来店：<input type="text"></label>
+              <button>保存</button>
+            </div>`;
+        }
+        const original = card.innerHTML;
+        card.innerHTML = html + '<div class="close-button" onclick="closeCard(event, this)">×</div>';
+        card.dataset.original = original;
+        card.classList.add('expanded');
+      });
+    });
+
+    function closeCard(e, el) {
+      e.stopPropagation();
+      const card = el.closest('.card');
+      card.innerHTML = card.dataset.original;
+      card.classList.remove('expanded');
+      table.style.animationPlayState = 'running';
+    }
+
+    // スワイプ操作
+    let startX = null;
+    document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+    document.addEventListener('touchend', e => {
+      if (startX === null) return;
+      const endX = e.changedTouches[0].clientX;
+      const delta = endX - startX;
+      if (Math.abs(delta) > 50) {
+        table.style.animationPlayState = 'paused';
+        table.style.transform = `rotateY(${delta > 0 ? '-' : ''}30deg)`;
+        setTimeout(() => table.style.animationPlayState = 'running', 300);
+      }
+      startX = null;
+    });
+
+    document.body.addEventListener('dblclick', () => {
+      const now = document.body.getAttribute('data-mode');
+      document.body.setAttribute('data-mode', now === 'circle' ? 'grid' : 'circle');
+    });
+
+    // パーティクル背景
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 1,
+        dx: Math.random() * 0.5 - 0.25,
+        dy: Math.random() * 0.5 - 0.25
+      });
+    }
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(0,255,255,0.3)';
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
+</body>
+</html>
