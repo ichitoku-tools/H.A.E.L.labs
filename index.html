@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>未来型カルテフォーム - レイアウト切替テスト</title>
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at center, #0f2027, #203a43, #2c5364);
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    .stage {
+      width: 100vw;
+      height: 100vh;
+      perspective: 1000px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 1em;
+    }
+    .card {
+      position: absolute;
+      width: 18vh;
+      height: 24vh;
+      background: rgba(0,0,0,0.6);
+      border-radius: 12px;
+      box-shadow: 0 0 20px cyan;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 1em;
+      cursor: pointer;
+      transition: all 0.5s ease;
+      transform-style: preserve-3d;
+    }
+    body.grid-mode .card {
+      position: relative !important;
+      transform: none !important;
+      margin: 10px;
+      width: 28vw !important;
+      height: 38vw !important;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="stage" id="cardContainer">
+    <div class="card">施術前<br>カウンセリング</div>
+    <div class="card">施術<br>コース</div>
+    <div class="card">施術後<br>記録</div>
+  </div>
+
+  <script>
+    // 円卓配置
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, i) => {
+      const angle = (i / cards.length) * 360;
+      card.style.transform = `rotateY(${angle}deg) translateZ(28vh)`;
+    });
+
+    // ダブルタップ検出
+    let lastTap = 0;
+    document.body.addEventListener('touchend', function(e) {
+      const now = new Date().getTime();
+      if (now - lastTap < 400) {
+        toggleLayoutMode();
+        e.preventDefault();
+      }
+      lastTap = now;
+    });
+
+    function toggleLayoutMode() {
+      const isGrid = document.body.classList.toggle('grid-mode');
+      cards.forEach((card, index) => {
+        if (!isGrid) {
+          const angle = (index / cards.length) * 360;
+          card.style.position = 'absolute';
+          card.style.transform = `rotateY(${angle}deg) translateZ(28vh)`;
+          card.style.margin = '';
+          card.style.width = '';
+          card.style.height = '';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
