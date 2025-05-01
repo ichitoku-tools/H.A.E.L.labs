@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>未来型カルテフォーム - 豪華演出完全版</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at center, #0f2027, #203a43, #2c5364);
+      overflow: hidden;
+      font-family: sans-serif;
+      color: #E0F7FA;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .stage {
+      perspective: 1600px;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .circle-table {
+      position: relative;
+      width: 50vh;
+      height: 50vh;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+    }
+
+    .circle-table::before {
+      content: "";
+      position: absolute;
+      bottom: -8vh;
+      left: 50%;
+      transform: translateX(-50%) rotateX(70deg);
+      width: 160%;
+      height: 24vh;
+      background: radial-gradient(circle at center, rgba(0,255,255,0.2), transparent 70%);
+      border-radius: 50%;
+      box-shadow: 0 0 60px rgba(0,255,255,0.2);
+      filter: blur(10px);
+      z-index: -1;
+      animation: pulse 6s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+
+    .card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 12px;
+      box-shadow: 0 0 20px cyan;
+      backdrop-filter: blur(6px);
+      transform-style: preserve-3d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9em;
+      color: white;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.6s ease, box-shadow 0.4s ease;
+      z-index: 1;
+      padding: 0.5em;
+      pointer-events: auto;
+    }
+
+    .card.summoned {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 90vw !important;
+      height: 90vh !important;
+      margin: 0 !important;
+      transform: translate(-50%, -50%) scale(1.0) !important;
+      z-index: 10;
+      box-shadow: 0 0 80px rgba(0,255,255,0.9);
+      overflow-y: auto;
+      padding: 1.5em;
+      background: rgba(0, 0, 0, 0.85);
+    }
+
+    .karte-form {
+      width: 100%;
+      font-size: 0.9em;
+      text-align: left;
+    }
+
+    .karte-form label {
+      display: block;
+      margin-bottom: 0.8em;
+    }
+
+    .karte-form input, .karte-form select {
+      width: 100%;
+      padding: 0.4em;
+      border-radius: 6px;
+      border: none;
+    }
+
+    .karte-form button {
+      width: 100%;
+      padding: 0.6em;
+      border: none;
+      border-radius: 6px;
+      background: #00bcd4;
+      color: white;
+      font-weight: bold;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #0ff;
+      z-index: 11;
+    }
+
+    canvas#particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .hint-message {
+      position: fixed;
+      bottom: 3vh;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.85em;
+      color: rgba(0,255,255,0.4);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0,255,255,0.2);
+      padding: 0.3em 1em;
+      border-radius: 8px;
+      z-index: 5;
+      pointer-events: none;
+      animation: blinkHint 2.5s infinite;
+    }
+
+    @keyframes blinkHint {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.7; }
+    }
+
+    @media (max-width: 768px) {
+      .card.flat {
+        transform: none !important;
+        position: relative !important;
+        margin: 1vh auto !important;
+        width: 90vw !important;
+        height: auto !important;
+        display: block !important;
+        top: auto !important;
+        left: auto !important;
+      }
+    }
+  </style>
+  <script>
+    let angle = 0;
+    const step = 120;
+    const cards = [];
+    let lastTap = 0;
+
+    function summon(card) {
+      if (!card.classList.contains('summoned')) {
+        document.querySelectorAll('.card').forEach(c => {
+          c.classList.remove('summoned');
+          if (c.dataset.original) c.innerHTML = c.dataset.original;
+        });
+        card.dataset.original = card.innerHTML;
+        card.classList.add('summoned');
+
+        const closeBtn = document.createElement('div');
+        closeBtn.className = 'close-button';
+        closeBtn.textContent = '×';
+        closeBtn.addEventListener('click', closeHandler);
+        closeBtn.addEventListener('touchend', closeHandler);
+        card.appendChild(closeBtn);
+      }
+    }
+
+    function closeHandler(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      closeCard(e.currentTarget);
+    }
+
+    function closeCard(btn) {
+      const card = btn.closest('.card');
+      card.classList.remove('summoned');
+      card.innerHTML = card.dataset.original;
+    }
+
+    function updateCardTransforms() {
+      cards.forEach((card, i) => {
+        if (!card.classList.contains('summoned')) {
+          const rotation = angle + i * step;
+          card.classList.remove('flat');
+          card.style.transform = `rotateY(${rotation}deg) translateZ(28vh)`;
+        }
+      });
+    }
+
+    function toggleFlatMode() {
+      const isFlat = cards[0].classList.contains('flat');
+      cards.forEach((card, i) => {
+        if (!card.classList.contains('summoned')) {
+          if (!isFlat) {
+            card.classList.add('flat');
+          } else {
+            card.classList.remove('flat');
+            const rotation = angle + i * step;
+            card.style.transform = `rotateY(${rotation}deg) translateZ(28vh)`;
+          }
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.card').forEach(card => {
+        cards.push(card);
+        card.dataset.original = card.innerHTML;
+        card.addEventListener('click', () => summon(card));
+      });
+      updateCardTransforms();
+
+      document.getElementById('circleTable').addEventListener('touchend', (e) => {
+        if (!e.target.classList.contains('card')) {
+          const now = new Date().getTime();
+          if (now - lastTap < 400) toggleFlatMode();
+          lastTap = now;
+        }
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        angle -= step;
+        updateCardTransforms();
+      } else if (e.key === 'ArrowRight') {
+        angle += step;
+        updateCardTransforms();
+      } else if (e.key === 'Escape') {
+        toggleFlatMode();
+      }
+    });
+  </script>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+  <div class="stage">
+    <div class="circle-table" id="circleTable">
+      <div class="card" data-form="before">施術前<br>カウンセリング</div>
+      <div class="card" data-form="course">施術<br>コース</div>
+      <div class="card" data-form="after">施術後<br>記録</div>
+    </div>
+  </div>
+  <div class="hint-message">整列はダブルタップ / ESC</div>
+</body>
+</html>
