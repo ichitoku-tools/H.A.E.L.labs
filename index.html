@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>未来型カルテ</title>
+  <style>
+    body {
+      background: #000;
+      color: #0ff;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+      padding: 20px;
+      overflow: hidden;
+    }
+    #terminal {
+      white-space: pre-wrap;
+      font-size: 1em;
+      margin-bottom: 30px;
+      display: none;
+    }
+    .card {
+      background: rgba(0,255,255,0.05);
+      border: 1px solid #0ff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #0ff;
+      max-width: 600px;
+      margin: auto;
+      display: none;
+    }
+    .card.visible {
+      display: block;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      background: #111;
+      color: #0ff;
+      border: 1px solid #0ff;
+      border-radius: 5px;
+    }
+    .symptom-box {
+      display: inline-block;
+      padding: 10px 15px;
+      margin: 5px 5px 0 0;
+      border: 1px solid #0ff;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #111;
+    }
+    .symptom-box.selected {
+      background: #0ff;
+      color: #000;
+    }
+    .stress-scale {
+      display: flex;
+      gap: 4px;
+      margin: 10px 0;
+    }
+    .scale-box {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #0ff;
+      background: #111;
+      cursor: pointer;
+    }
+    .scale-box.active {
+      background: #0ff;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: #0ff;
+      color: #000;
+      border: none;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background: #00e0e0;
+    }
+    #overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="overlay"></div>
+
+  <div id="terminal"></div>
+
+  <div class="card" id="formCard">
+    <form id="calteForm">
+      <label for="name">お名前</label>
+      <input type="text" id="name" name="name" placeholder="例：山田花子" required>
+
+      <label>主訴（複数選択可）</label>
+      <div class="symptom-box" onclick="toggleSymptom(this)" data-value="肩こり">肩こり</div>
+      <div class="symptom-box" onclick="toggleSymptom(this)" data-value="腰痛">腰痛</div>
+      <div class="symptom-box" onclick="toggleSymptom(this)" data-value="頭痛">頭痛</div>
+      <div class="symptom-box" onclick="toggleSymptom(this)" data-value="冷え">冷え</div>
+      <div class="symptom-box" onclick="toggleSymptom(this)" data-value="不眠">不眠</div>
+      <input type="hidden" id="symptoms" name="symptoms">
+
+      <label for="condition">お身体の状態・気になること</label>
+      <textarea id="condition" name="condition" rows="4" placeholder="肩がガチガチで辛い…など"></textarea>
+
+      <label for="stressSlider">ストレススケール</label>
+      <div class="stress-scale" id="stressButtons"></div>
+      <input type="range" id="stressSlider" name="stress" min="0" max="10" value="5">
+
+      <button type="submit">送信する</button>
+    </form>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const user = params.get("user");
+    const displayName = user ? decodeURIComponent(user) : "ユーザー";
+
+    const text = `診療データを初期化中...\n> ログファイル確認済み\n> ようこそ、${displayName}様`;
+    const terminal = document.getElementById("terminal");
+    const formCard = document.getElementById("formCard");
+    const overlay = document.getElementById("overlay");
+    let i = 0;
+
+    function type() {
+      if (i < text.length) {
+        terminal.innerHTML += text[i] === "\n" ? "<br>" : text[i];
+        i++;
+        setTimeout(type, 40);
+      } else {
+        formCard.classList.add("visible");
+      }
+    }
+
+    function startSequence() {
+      overlay.remove();
+      terminal.style.display = "block";
+      type();
+    }
+
+    // S キー or タップ起動
+    window.addEventListener("keydown", (e) => {
+      if (e.key.toLowerCase() === "s") startSequence();
+    });
+    overlay.addEventListener("click", startSequence);
+
+    // 主訴
+    function toggleSymptom(elem) {
+      elem.classList.toggle("selected");
+      const selected = [...document.querySelectorAll(".symptom-box.selected")].map(e => e.dataset.value);
+      document.getElementById("symptoms").value = selected.join(", ");
+    }
+
+    // ストレススケール
+    const stressScale = document.getElementById("stressButtons");
+    const stressSlider = document.getElementById("stressSlider");
+
+    for (let i = 0; i <= 10; i++) {
+      const box = document.createElement("div");
+      box.classList.add("scale-box");
+      if (i === 0) box.classList.add("active");
+      box.dataset.value = i;
+      box.addEventListener("click", () => {
+        stressSlider.value = i;
+        updateScale(i);
+      });
+      stressScale.appendChild(box);
+    }
+
+    stressSlider.addEventListener("input", () => {
+      updateScale(stressSlider.value);
+    });
+
+    function updateScale(val) {
+      document.querySelectorAll(".scale-box").forEach((box, idx) => {
+        box.classList.toggle("active", idx <= val);
+      });
+    }
+
+    // 送信処理（仮）
+    document.getElementById("calteForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+      alert("送信完了！（仮）\n" + JSON.stringify(data, null, 2));
+    });
+  </script>
+
+</body>
+</html>
