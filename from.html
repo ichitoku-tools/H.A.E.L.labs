@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>未来型カルテフォーム</title>
+  <style>
+    body {
+      background: #000;
+      color: #0ff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #0ff;
+    }
+    .form-section {
+      background: rgba(0,255,255,0.05);
+      border: 1px solid #0ff;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 500px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #0ff;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      background: #111;
+      color: #0ff;
+      border: 1px solid #0ff;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: #0ff;
+      color: #000;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      width: 100%;
+    }
+    button:hover {
+      background: #00e0e0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>未来型カルテ</h1>
+
+  <form class="form-section">
+    <label for="name">お名前</label>
+    <input type="text" id="name" placeholder="例：山田花子">
+
+    <label for="date">施術日</label>
+    <input type="date" id="date">
+
+    <label for="course">コース選択</label>
+    <select id="course">
+      <option value="">選択してください</option>
+      <option>もみほぐし 60分</option>
+      <option>足つぼセット 90分</option>
+      <option>ヘッド付きコース</option>
+      <option>オイルマッサージ</option>
+    </select>
+
+    <label for="condition">お身体の状態・気になること</label>
+    <textarea id="condition" rows="4" placeholder="肩こりがつらい、腰が重いなど"></textarea>
+
+    <label for="level">強さ（ストレススケール）</label>
+    <input type="range" id="level" min="0" max="10" value="5">
+    <div id="level-display" style="text-align:right;">現在：5</div>
+
+    <button type="submit">保存する</button>
+  </form>
+
+  <script>
+    const levelInput = document.getElementById('level');
+    const levelDisplay = document.getElementById('level-display');
+    levelInput.addEventListener('input', () => {
+      levelDisplay.textContent = `現在：${levelInput.value}`;
+    });
+  </script>
+
+</body>
+</html>
