@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>SAO風システム起動</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #0ff;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+    canvas {
+      position: absolute;
+      top: 0; left: 0;
+      z-index: 1;
+    }
+    #system-menu {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      padding: 40px;
+      background: rgba(0, 255, 255, 0.1);
+      border: 1px solid #0ff;
+      box-shadow: 0 0 20px #0ff;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      border-radius: 10px;
+      text-align: center;
+      width: 300px;
+    }
+    #system-menu.active {
+      display: block;
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    #system-menu h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+    #system-menu button {
+      background: transparent;
+      color: #0ff;
+      border: 1px solid #0ff;
+      padding: 10px 20px;
+      margin: 10px 0;
+      width: 100%;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #system-menu button:hover {
+      background: rgba(0, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="gesture-canvas"></canvas>
+
+<div id="system-menu">
+  <h2>System Access</h2>
+  <button onclick="alert('カルテ一覧を開きます')">カルテ一覧</button>
+  <button onclick="alert('施術履歴を検索')">施術履歴</button>
+  <button onclick="alert('ログ管理')">ログ</button>
+  <button onclick="alert('設定画面を開く')">設定</button>
+  <button onclick="closeMenu()">ログアウト</button>
+</div>
+
+<script>
+  const canvas = document.getElementById('gesture-canvas');
+  const ctx = canvas.getContext('2d');
+  const menu = document.getElementById('system-menu');
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  let drawing = false;
+  let points = [];
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    points = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.moveTo(e.clientX, e.clientY);
+    points.push({ x: e.clientX, y: e.clientY });
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (!drawing) return;
+    ctx.lineTo(e.clientX, e.clientY);
+    ctx.strokeStyle = '#0ff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    points.push({ x: e.clientX, y: e.clientY });
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    drawing = false;
+    ctx.closePath();
+    if (looksLikeS(points)) {
+      showMenu();
+    }
+  });
+
+  function looksLikeS(pts) {
+    let ups = 0, downs = 0;
+    for (let i = 1; i < pts.length; i++) {
+      const dy = pts[i].y - pts[i - 1].y;
+      if (dy > 5) downs++;
+      else if (dy < -5) ups++;
+    }
+    return (ups > 5 && downs > 5);
+  }
+
+  function showMenu() {
+    menu.classList.add('active');
+  }
+
+  function closeMenu() {
+    menu.classList.remove('active');
+  }
+
+  // モバイル対応（タッチジェスチャー）
+  canvas.addEventListener('touchstart', e => {
+    const touch = e.touches[0];
+    drawing = true;
+    points = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX, touch.clientY);
+    points.push({ x: touch.clientX, y: touch.clientY });
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    if (!drawing) return;
+    const touch = e.touches[0];
+    ctx.lineTo(touch.clientX, touch.clientY);
+    ctx.strokeStyle = '#0ff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    points.push({ x: touch.clientX, y: touch.clientY });
+  });
+
+  canvas.addEventListener('touchend', () => {
+    drawing = false;
+    ctx.closePath();
+    if (looksLikeS(points)) {
+      showMenu();
+    }
+  });
+</script>
+
+</body>
+</html>
