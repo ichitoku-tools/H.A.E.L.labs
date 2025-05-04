@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>未来型カルテフォーム</title>
+  <style>
+    body {
+      background: #000;
+      color: #0ff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    #typedText {
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      font-size: 1em;
+      color: #0ff;
+      animation: blink-caret 1s step-end infinite;
+    }
+    @keyframes blink-caret {
+      0%, 100% { border-right: .1em solid transparent; }
+      50% { border-right: .1em solid #0ff; }
+    }
+    .form-section {
+      background: rgba(0,255,255,0.05);
+      border: 1px solid #0ff;
+      padding: 20px;
+      margin: 40px auto;
+      max-width: 500px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #0ff;
+      display: none;
+      transition: opacity 0.5s ease;
+    }
+    .form-section.visible {
+      display: block;
+      opacity: 1;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      background: #111;
+      color: #0ff;
+      border: 1px solid #0ff;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: #0ff;
+      color: #000;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      width: 100%;
+    }
+    button:hover {
+      background: #00e0e0;
+    }
+    .symptom-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .symptom {
+      padding: 8px 12px;
+      background: #111;
+      border: 1px solid #0ff;
+      border-radius: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .symptom.selected {
+      background: #0ff;
+      color: #000;
+    }
+    .scale-container {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+    .scale-box {
+      width: 20px;
+      height: 20px;
+      background: #111;
+      border: 1px solid #0ff;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .scale-box.active {
+      background: #0ff;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="typedText"></div>
+
+  <form id="calteForm" class="form-section">
+    <label for="userName">お名前</label>
+    <input type="text" id="userName" name="name" placeholder="例：山田花子" required />
+
+    <label>主訴（複数選択可）</label>
+    <div id="symptomList" class="symptom-list">
+      <div class="symptom" data-value="肩こり" onclick="toggleSymptom(this)">肩こり</div>
+      <div class="symptom" data-value="腰痛" onclick="toggleSymptom(this)">腰痛</div>
+      <div class="symptom" data-value="頭痛" onclick="toggleSymptom(this)">頭痛</div>
+      <div class="symptom" data-value="冷え" onclick="toggleSymptom(this)">冷え</div>
+      <div class="symptom" data-value="不眠" onclick="toggleSymptom(this)">不眠</div>
+    </div>
+    <input type="hidden" id="selectedSymptoms" name="symptoms" />
+
+    <label for="condition">お身体の状態・気になること</label>
+    <textarea id="condition" name="condition" rows="4" placeholder="肩がガチガチで辛い…など"></textarea>
+
+    <label for="stressSlider">ストレススケール</label>
+    <div id="stressButtons" class="scale-container"></div>
+    <input type="range" id="stressSlider" name="stress" min="0" max="10" value="5" />
+
+    <button type="submit">送信する</button>
+  </form>
+
+  <script>
+    // URLパラメータから名前取得
+    const params = new URLSearchParams(window.location.search);
+    const user = params.get("user");
+    const displayName = user ? decodeURIComponent(user) : "ユーザー";
+
+    // タイピング表示テキスト
+    const text = `診療データを初期化中...\n> ログファイル確認済み\n> ようこそ、${displayName}様`;
+    const target = document.getElementById("typedText");
+    let i = 0;
+
+    function type() {
+      if (i < text.length) {
+        target.innerHTML += text[i] === "\n" ? "<br>" : text[i];
+        i++;
+        setTimeout(type, 50);
+      } else {
+        document.getElementById("calteForm").classList.add("visible");
+      }
+    }
+    window.onload = type;
+
+    // 主訴選択
+    function toggleSymptom(elem) {
+      elem.classList.toggle("selected");
+    }
+
+    // ストレススケールUI
+    const stressScale = document.getElementById("stressButtons");
+    const stressSlider = document.getElementById("stressSlider");
+
+    for (let i = 0; i <= 10; i++) {
+      const box = document.createElement("div");
+      box.classList.add("scale-box");
+      if (i === 0) box.classList.add("active");
+      box.dataset.value = i;
+      box.addEventListener("click", () => {
+        stressSlider.value = i;
+        updateScale(i);
+      });
+      stressScale.appendChild(box);
+    }
+
+    stressSlider.addEventListener("input", () => {
+      updateScale(stressSlider.value);
+    });
+
+    function updateScale(val) {
+      document.querySelectorAll(".scale-box").forEach((box, idx) => {
+        box.classList.toggle("active", idx <= val);
+      });
+    }
+
+    // フォーム送信処理
+    document.getElementById("calteForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const selected = [...document.querySelectorAll(".symptom.selected")].map(div => div.dataset.value);
+      document.getElementById("selectedSymptoms").value = selected.join(", ");
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+      console.log("送信データ：", data);
+      alert("送信完了！（仮）\n" + JSON.stringify(data, null, 2));
+    });
+  </script>
+</body>
+</html>
